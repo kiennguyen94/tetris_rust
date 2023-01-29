@@ -23,7 +23,7 @@ impl Tetris {
         Self {
             width: width as i32,
             height: height as i32,
-            current_shape: &Shape::new_random() + Pos(width as i32 / 2, 0),
+            current_shape: &Shape::new_random() + Pos((width as i32 - 1) / 2, 0),
             fixed_shapes: vec![],
             lost: false,
         }
@@ -93,10 +93,10 @@ impl Tetris {
         if self.is_oob(&translated_cur_shape) || self.is_colliding(&translated_cur_shape) {
             let new_fixed_shape = mem::replace(
                 &mut self.current_shape,
-                &Shape::new_random() + Pos(self.width / 2, 0),
+                &Shape::new_random() + Pos((self.width - 1) / 2, 0),
             );
 
-            self.fixed_shapes.push(translated_cur_shape);
+            self.fixed_shapes.push(new_fixed_shape);
             self.remove_full_line();
 
             if self.is_colliding(&self.current_shape) {
@@ -118,7 +118,11 @@ impl Tetris {
         }
     }
 
-    pub fn rotate(&mut self, direction: Direction) {
+    // TBD: direction of rotation?
+    pub fn rotate(&mut self) {
+        if self.lost {
+            return;
+        }
         let rot_cur_shape = self.current_shape.rotate();
         if !self.is_oob(&rot_cur_shape) && !self.is_colliding(&rot_cur_shape) {
             self.current_shape = rot_cur_shape;
